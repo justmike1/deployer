@@ -34,6 +34,7 @@ var (
 	HelmChart  string
 	Namespace  string
 	ValuesFile string
+	RepoURL    string
 )
 
 // ParseCommandName returns the enum command option from CLI arg
@@ -59,6 +60,7 @@ func ParseFlags(args []string) {
 	flag.StringVar(&HelmChart, "helm", "", "Helm chart URI (OCI or repo)")
 	flag.StringVar(&Namespace, "n", "default", "Kubernetes namespace")
 	flag.StringVar(&ValuesFile, "f", "", "Helm values file")
+	flag.StringVar(&RepoURL, "repo", "", "Helm repository URL")
 
 	// only parse args after the command
 	_ = flag.CommandLine.Parse(args)

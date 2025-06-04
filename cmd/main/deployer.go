@@ -64,7 +64,7 @@ func deployK3s(clusterName string) {
 func deployK8sManifests(clusterName string) {
 	if config.HelmChart != "" {
 		log.Println("Deploying Helm chart...")
-		deploy.HelmChart(clusterName, config.HelmChart, config.Namespace, config.ValuesFile)
+		deploy.HelmChart(clusterName, config.HelmChart, config.Namespace, config.ValuesFile, config.RepoURL)
 	} else {
 		log.Panicf("Helm chart URI is required for deployment. Use --helm flag to specify the chart.")
 	}
