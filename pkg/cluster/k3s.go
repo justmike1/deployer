@@ -1,8 +1,6 @@
 package cluster
 
 import (
-	"fmt"
-	"github.com/justmike1/deployer/pkg/deploy"
 	"log"
 	"os"
 	"os/exec"
@@ -87,77 +85,6 @@ func createK3dCluster(clusterName string) {
 		log.Fatalf("Failed to write kubeconfig to %s: %v", outputPath, err)
 	}
 	log.Printf("Wrote kubeconfig to %s", outputPath)
-
-	installNginxIngress(clusterName)
-}
-
-func installNginxIngress(clusterName string) {
-	log.Println("Installing ingress-nginx via Helm...")
-
-	const repo = "https://kubernetes.github.io/ingress-nginx"
-	const chartURI = "ingress-nginx"
-	const namespace = "ingress-nginx"
-
-	const valuesYAML = `
-controller:
-  publishService:
-    enabled: true
-  service:
-    type: NodePort
-    nodePorts:
-      http: 30080
-      https: 30443
-`
-
-	tmpFile, err := os.CreateTemp("", "ingress-values-*.yaml")
-	if err != nil {
-		log.Fatalf("Failed to create temporary values file: %v", err)
-	}
-	defer os.Remove(tmpFile.Name())
-
-	if _, err := tmpFile.WriteString(valuesYAML); err != nil {
-		log.Fatalf("Failed to write Helm values: %v", err)
-	}
-	if err := tmpFile.Close(); err != nil {
-		log.Fatalf("Failed to close Helm values file: %v", err)
-	}
-
-	deploy.HelmChart(clusterName, chartURI, namespace, tmpFile.Name(), repo)
-
-	patchEtcHosts(clusterName)
-	log.Println("Ingress controller installed successfully.")
-}
-
-func patchEtcHosts(clusterName string) {
-	domain := fmt.Sprintf("%s.k3d.host", clusterName)
-	entry := fmt.Sprintf("127.0.0.1 %s", domain)
-
-	hostsPath := "/etc/hosts"
-	content, err := os.ReadFile(hostsPath)
-	if err != nil {
-		log.Printf("Warning: could not read /etc/hosts: %v", err)
-		return
-	}
-
-	if strings.Contains(string(content), domain) {
-		log.Printf("/etc/hosts already contains entry for %s", domain)
-		return
-	}
-
-	log.Printf("Patching /etc/hosts with: %s (requires root)", entry)
-
-	f, err := os.OpenFile(hostsPath, os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Printf("Failed to open /etc/hosts for writing: %v", err)
-		return
-	}
-	defer f.Close()
-
-	if _, err := f.WriteString("\n" + entry + "\n"); err != nil {
-		log.Printf("Failed to write to /etc/hosts: %v", err)
-	} else {
-		log.Printf("Successfully added %s to /etc/hosts", domain)
-	}
 }
 
 func DestroyK3dCluster(clusterName string) {
