@@ -62,8 +62,11 @@ func isK3dClusterRunning(clusterName string) bool {
 
 func createK3dCluster(clusterName string) {
 	cmd := exec.Command("k3d", "cluster", "create", clusterName,
-		"--port", "30080:80@loadbalancer",
-		"--port", "30443:443@loadbalancer",
+		"--port", "80:80@loadbalancer",
+		"--port", "443:443@loadbalancer",
+		"--port", "30080:80@loadbalancer", // NodePort for HTTP
+		"--port", "30443:443@loadbalancer", // NodePort for HTTPS
+		"--agents", "1",
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
