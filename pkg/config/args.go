@@ -6,7 +6,8 @@ import "flag"
 type CmdOptions int
 
 const (
-	CLUSTER CmdOptions = iota
+	HELP CmdOptions = iota
+	CLUSTER
 	SETUP
 	DEPLOY
 	STATUS
@@ -15,6 +16,8 @@ const (
 
 func (c CmdOptions) String() string {
 	switch c {
+	case HELP:
+		return "help"
 	case SETUP:
 		return "setup"
 	case CLUSTER:
@@ -40,6 +43,8 @@ var (
 // ParseCommandName returns the enum command option from CLI arg
 func ParseCommandName(option string) CmdOptions {
 	switch option {
+	case "help":
+		return HELP
 	case "setup":
 		return SETUP
 	case "cluster":

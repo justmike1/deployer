@@ -16,7 +16,8 @@ const defaultNamespace = "default"
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("No command provided. Use 'help' command to see available commands.")
+		log.Println("No command provided.\n")
+		help()
 		os.Exit(1)
 	}
 
@@ -29,12 +30,9 @@ func main() {
 		clusterName = flag.Args()[0]
 	}
 
-	if os.Geteuid() != 0 {
-		log.Println("This CLI tool operations requires root privileges (e.g., run with sudo)")
-		return
-	}
-
 	switch cmdOption {
+	case config.HELP:
+		help()
 	case config.SETUP:
 		setupPrerequisites()
 	case config.CLUSTER:
@@ -46,7 +44,8 @@ func main() {
 	case config.DESTROY:
 		destroyK3s(clusterName)
 	default:
-		log.Println("Unknown command. Use 'help' command to see available commands.")
+		log.Println("Unknown command.\n")
+		help()
 		os.Exit(1)
 	}
 }
@@ -78,4 +77,25 @@ func showStatus(clusterName string) {
 func destroyK3s(clusterName string) {
 	log.Printf("Destroying local K3s cluster [%s]...\n", clusterName)
 	cluster.DestroyK3dCluster(clusterName)
+}
+
+func help() {
+	log.Println("Usage: deployer <command> [flags] [cluster-name]")
+	log.Println("")
+	log.Println("Commands:")
+	log.Println("  help       Show this help message")
+	log.Println("  setup      Install prerequisite tools (k3d, helm, etc.)")
+	log.Println("  cluster    Create a local K3s cluster")
+	log.Println("  deploy     Deploy Helm chart to the cluster")
+	log.Println("  status     Show status of application pods")
+	log.Println("  destroy    Tear down the local K3s cluster")
+	log.Println("")
+	log.Println("Flags:")
+	log.Println("  --helm     Helm chart URI (OCI or repo)")
+	log.Println("  -n         Kubernetes namespace (default: default)")
+	log.Println("  -f         Helm values file")
+	log.Println("  --repo     Helm repository URL")
+	log.Println("")
+	log.Println("Example:")
+	log.Println("  deployer deploy --helm oci://myrepo/mychart -n dev -f values.yaml my-cluster")
 }
