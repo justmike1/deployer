@@ -16,7 +16,7 @@ const defaultNamespace = "default"
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Println("No command provided.\n")
+		log.Printf("No command provided.\n")
 		help()
 		os.Exit(1)
 	}
@@ -44,7 +44,7 @@ func main() {
 	case config.DESTROY:
 		destroyK3s(clusterName)
 	default:
-		log.Println("Unknown command.\n")
+		log.Printf("Unknown command.\n")
 		help()
 		os.Exit(1)
 	}
